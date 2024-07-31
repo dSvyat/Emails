@@ -1,7 +1,11 @@
 package ua.vozniuk.demo;
 
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
+import ua.vozniuk.demo.googleapi.GmailMessages;
+import ua.vozniuk.demo.googleapi.GoogleDrive;
+import ua.vozniuk.demo.openaiapi.Completion;
+import ua.vozniuk.demo.openaiapi.*;
+import ua.vozniuk.demo.openaiapi.Requestable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -9,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Constructor {
+public class JobManager {
     private long chatId;
     private String filepath;
     private String openAiToken;
@@ -17,7 +21,7 @@ public class Constructor {
     private String telegramToken;
     private String email;
 
-    public Constructor(ConstructorBuilder builder){
+    public JobManager(JobManagerBuilder builder){
         this.chatId = builder.getChatId();
         this.filepath = builder.getFilepath();
         this.openAiToken = builder.getOpenAiToken();
@@ -26,8 +30,8 @@ public class Constructor {
         this.email = builder.getEmail();
     }
 
-    public static ConstructorBuilder builder(){
-        return new ConstructorBuilder();
+    public static JobManagerBuilder builder(){
+        return new JobManagerBuilder();
     }
 
     /**
@@ -44,7 +48,7 @@ public class Constructor {
      * @throws InterruptedException        If the execution is interrupted while sleeping.
      *
      * @see Requestable
-     * @see Assistant
+     * @see ua.vozniuk.demo.openaiapi.OpenAi
      * @see TelegramBot
      */
     public <T extends Requestable> void run(T openAiEndpoint, int timeout) throws IOException, GeneralSecurityException, InterruptedException {
@@ -54,12 +58,12 @@ public class Constructor {
                 String answer = openAiEndpoint.makeRequest(excel.getExcelData(), GmailMessages.ReadMessages.readLastMessage(), assistantPrompt);
                 System.out.println(answer);
                 if (checkAnswer(answer)) {
-                    excel.doExcelWork(answer);
+                    GoogleDrive.downloadFile(GoogleDrive.getFileByName(filepath));
+                    excel.changeSheet(answer);
                     if (excel.checkForAdditionalInfo(answer)) {
                         try {
                             TelegramBot telegramBot = new TelegramBot(telegramToken);
-                            telegramBot.register();
-                            telegramBot.sendMessage(chatId, excel.getAdditionalInfo(answer));
+                            telegramBot.register().sendMessage(chatId, excel.getAdditionalInfo(answer));
                         } catch (TelegramApiException e){
                             e.printStackTrace();
                         }
@@ -81,7 +85,7 @@ public class Constructor {
      * @throws GeneralSecurityException   If a security-related exception occurs during execution.
      * @throws InterruptedException        If the execution is interrupted while sleeping.
      *
-     * @see Requestable
+     * @see ua.vozniuk.demo.openaiapi.OpenAi
      * @see Assistant
      */
     public <T extends Requestable> void runWithoutBot(T openAiEndpoint) throws IOException, GeneralSecurityException, InterruptedException {
@@ -91,7 +95,7 @@ public class Constructor {
                 String answer = openAiEndpoint.makeRequest(excel.getExcelData(), GmailMessages.ReadMessages.readLastMessage(), assistantPrompt);
                 System.out.println(answer);
                 if (checkAnswer(answer)) {
-                    excel.doExcelWork(answer);
+                    excel.changeSheet(answer);
                 }
             }
             TimeUnit.SECONDS.sleep(10);
@@ -108,14 +112,14 @@ public class Constructor {
      * @return               A string containing the response received from the Requestable endpoint.
      * @throws IOException  If an I/O exception occurs while reading Excel data or making the request.
      *
-     * @see Requestable
+     * @see ua.vozniuk.demo.openaiapi.OpenAi
      * @see Assistant
      */
     public <T extends Requestable> String checkWithoutBotWithEmail(T openAiEndpoint) throws IOException {
         Excel excel = new Excel(filepath);
         String answer = openAiEndpoint.makeRequest(excel.getExcelData(), email, assistantPrompt);
         if (checkAnswer(answer)) {
-            excel.doExcelWork(answer);
+            excel.changeSheet(answer);
         }
         return answer;
     }
@@ -130,7 +134,7 @@ public class Constructor {
      * @throws FileNotFoundException   If the Excel file specified by the filepath is not found.
      * @throws TelegramApiException     If an exception occurs while interacting with the Telegram API.
      *
-     * @see Requestable
+     * @see ua.vozniuk.demo.openaiapi.OpenAi
      * @see Assistant
      * @see TelegramBot
      */
@@ -138,7 +142,7 @@ public class Constructor {
         Excel excel = new Excel(filepath);
         String answer = openAiEndpoint.makeRequest(excel.getExcelData(), email, assistantPrompt);
         if (checkAnswer(answer)) {
-            excel.doExcelWork(answer);
+            excel.changeSheet(answer);
             if (excel.checkForAdditionalInfo(answer)) {
                 TelegramBot telegramBot = new TelegramBot(telegramToken);
                 telegramBot.register();
@@ -195,6 +199,7 @@ public class Constructor {
     public String getEmail() {
         return email;
     }
+
 }
 
 

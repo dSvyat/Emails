@@ -1,6 +1,6 @@
 package ua.vozniuk.demo;
 
-public class ConstructorBuilder {
+class JobManagerBuilder {
     private long chatId;
     private String filepath;
     private String openAiToken;
@@ -12,7 +12,7 @@ public class ConstructorBuilder {
         return chatId;
     }
 
-    public ConstructorBuilder setChatId(long chatId) {
+    public JobManagerBuilder setChatId(long chatId) {
         this.chatId = chatId;
         return this;
     }
@@ -21,7 +21,7 @@ public class ConstructorBuilder {
         return filepath;
     }
 
-    public ConstructorBuilder setFilepath(String filepath) {
+    public JobManagerBuilder setFilepath(String filepath) {
         this.filepath = filepath;
         return this;
     }
@@ -30,7 +30,7 @@ public class ConstructorBuilder {
         return openAiToken;
     }
 
-    public ConstructorBuilder setOpenAiToken(String openAiToken) {
+    public JobManagerBuilder setOpenAiToken(String openAiToken) {
         this.openAiToken = openAiToken;
         return this;
     }
@@ -39,7 +39,7 @@ public class ConstructorBuilder {
         return assistantPrompt;
     }
 
-    public ConstructorBuilder setAssistantPrompt(String assistantPrompt) {
+    public JobManagerBuilder setAssistantPrompt(String assistantPrompt) {
         this.assistantPrompt = assistantPrompt;
         return this;
     }
@@ -48,7 +48,7 @@ public class ConstructorBuilder {
         return telegramToken;
     }
 
-    public ConstructorBuilder setTelegramToken(String telegramToken) {
+    public JobManagerBuilder setTelegramToken(String telegramToken) {
         this.telegramToken = telegramToken;
         return this;
     }
@@ -57,12 +57,12 @@ public class ConstructorBuilder {
         return email;
     }
 
-    public ConstructorBuilder setEmail(String email) {
+    public JobManagerBuilder setEmail(String email) {
         this.email = email;
         return this;
     }
 
-    public Constructor build() {
-        return new Constructor(this);
+    public JobManager build() {
+        return new JobManager(this);
     }
 }

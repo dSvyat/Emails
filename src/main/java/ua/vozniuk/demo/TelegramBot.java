@@ -32,8 +32,9 @@ public class TelegramBot extends TelegramLongPollingBot {
      *
      * @throws TelegramApiException If an exception occurs while registering the bot.
      */
-    public void register() throws TelegramApiException{
+    public TelegramBot register() throws TelegramApiException{
         telegramBotsApi.registerBot(new TelegramBot(token));
+        return this;
     }
 
     /**

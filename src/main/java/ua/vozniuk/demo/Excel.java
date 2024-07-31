@@ -2,8 +2,10 @@ package ua.vozniuk.demo;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import ua.vozniuk.demo.googleapi.GoogleDrive;
 
 import java.io.*;
+import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,7 +64,7 @@ public class Excel {
      * @param answer The answer received from a request.
      * @return {@code true} if the Excel operations were successful, {@code false} otherwise.
      */
-    public boolean doExcelWork(String answer) {
+    public boolean changeSheet(String answer) {
         CellStyle style = workbook.createCellStyle();
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         String value = getValue(answer);
@@ -83,8 +85,9 @@ public class Excel {
         }
         try {
             workbook.write(new FileOutputStream(filePath));
+            GoogleDrive.uploadFile(filePath, "GoogleDriveSheet.xlsx");
             return true;
-        } catch (IOException e){
+        } catch (IOException | GeneralSecurityException e){
             e.printStackTrace();
         }
         return false;
